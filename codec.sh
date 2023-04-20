@@ -74,6 +74,11 @@ SetWindowsVer()
     GetWindowsVer
 }
 
+GetSysDir()
+{
+    if [ $ARCH = "win64" ]; then SYSDIR="syswow64"; else SYSDIR="system32"; fi
+}
+
 OverrideDll()
 {
     if [ "$2" != "" ]; then DATA="/d $2"; else DATA=""; fi
@@ -103,7 +108,7 @@ DownloadFile()
     DLFILE=$SCRIPT_DIR/$1/$2
     DLFILEWIP=${DLFILE}.download
 
-    # download installer if we don't have it yet
+    # download file if we don't have it yet
     WGET_ARGS="--progress=bar"
     if [ ! -f "$DLFILE" ]; then
         # allow resuming if an incomplete file is found
@@ -125,7 +130,7 @@ DownloadFile()
 
     # file hash must match, otherwise quit
     if [ -f "$DLFILE" ]; then
-        Hash_SHA256 "$DLFILE" $4
+        [ "$4" != "nohash" ] && Hash_SHA256 "$DLFILE" $4
     else
         echo "$1 is not found, cannot continue."
     fi
@@ -144,7 +149,6 @@ Install_mf()
     Heading "mf"
 
     WORKDIR=$SCRIPT_DIR/mf
-    if [ $ARCH = "win64" ]; then SYSDIR="syswow64"; else SYSDIR="system32"; fi
     if ! command -v unzip >/dev/null; then echo "unzip is not available, cannot continue."; Quit; fi
 
     OVERRIDE_DLL="colorcnv dxva2 evr mf mferror mfplat mfplay mfreadwrite msmpeg2adec msmpeg2vdec sqmapi wmadmod wmvdecod"
@@ -187,15 +191,13 @@ Install_quartz2()
 
     DownloadFileInternal quartz2 quartz2.dll fa52a0d0647413deeef57c5cb632f73a97a48588c16877fc1cc66404c3c21a2b
 
-    if [ $ARCH = "win64" ]; then SYSDIR="syswow64"; else SYSDIR="system32"; fi
-
     cp -fv "$SCRIPT_DIR/quartz2/quartz2.dll" "$WINEPREFIX/drive_c/windows/$SYSDIR/quartz2.dll"
     RUN regsvr32 quartz2.dll
 
     OverrideDll winegstreamer ""
 
     # use wine's quartz for these DirectShow filters
-    DLL="c:/windows/$SYSDIR/quartz.dll"
+    DLL="c:\\windows\\$SYSDIR\\quartz.dll"
     SetClassDll32 "79376820-07D0-11CF-A24D-0020AFD79767" $DLL #DirectSound
     SetClassDll32 "6BC1CFFA-8FC1-4261-AC22-CFB4CC38DB50" $DLL #DefaultVideoRenderer
     SetClassDll32 "70E102B0-5556-11CE-97C0-00AA0055595A" $DLL #VideoRenderer
@@ -231,8 +233,6 @@ Install_xaudio29()
 
     DownloadFileInternal xaudio29 xaudio2_9.dll 667787326dd6cc94f16e332fd271d15aabe1aba2003964986c8ac56de07d5b57
 
-    if [ $ARCH = "win64" ]; then SYSDIR="syswow64"; else SYSDIR="system32"; fi
-
     cp -fv "$SCRIPT_DIR/xaudio29/xaudio2_9.dll" "$WINEPREFIX/drive_c/windows/$SYSDIR/xaudio2_9.dll"
     cp -fv "$SCRIPT_DIR/xaudio29/xaudio2_9.dll" "$WINEPREFIX/drive_c/windows/$SYSDIR/xaudio2_8.dll"
 
@@ -244,8 +244,9 @@ Install_lavfilters()
 {
     Heading "LAVFilters"
 
-    FNAME="LAVFilters-0.77.2-Installer.exe"
-    DownloadFile lavfilters $FNAME "https://github.com/Nevcairiel/LAVFilters/releases/download/0.77.2/LAVFilters-0.77.2-Installer.exe" 3bf333bae56f9856fb7db96ce2410df1da3958ac6a9fd5ac965d33c7af6f27d7
+    VER="0.77.2"
+    FNAME="LAVFilters-$VER-Installer.exe"
+    DownloadFile lavfilters $FNAME "https://github.com/Nevcairiel/LAVFilters/releases/download/$VER/$FNAME" 3bf333bae56f9856fb7db96ce2410df1da3958ac6a9fd5ac965d33c7af6f27d7
 
     RUN "$SCRIPT_DIR/lavfilters/$FNAME" /VERYSILENT /SUPPRESSMSGBOXES /NORESTART /SP-
 
@@ -269,6 +270,7 @@ RunActions()
 
     CheckEnv
     GetWindowsVer
+    GetSysDir
 
     for item in $VERBS; do [ "${REQ[$item]}" = 1 ] && Install_${item}; done
 }
