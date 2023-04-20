@@ -238,36 +238,31 @@ Install_xaudio29()
 
 # ============================================================================
 
+VERBS="mf quartz2 wmp11 xaudio29"
+
 RunActions()
 {
-    do_mf=0
-    do_quartz2=0
-    do_wmp11=0
-    do_xaudio29=0
+    declare -A REQ
+    for item in $VERBS; do REQ[$item]=0; done
 
     for item in $@; do
-        case $item in
-            mf) do_mf=1;;
-            quartz2) do_quartz2=1;;
-            wmp11) do_wmp11=1;;
-            xaudio29) do_xaudio29=1;;
-            *) echo "invalid verb $item"; Quit;;
-        esac
+        if [ "${REQ[$item]}" = 0 ]; then REQ[$item]=1;
+        else echo "invalid verb $item"; Quit; fi
     done
 
     CheckEnv
     GetWindowsVer
 
-    if [ $do_quartz2 -eq 1 ]; then Install_quartz2; fi
-    if [ $do_wmp11 -eq 1 ]; then Install_WMP11; fi
-    if [ $do_mf -eq 1 ]; then Install_mf; fi
-    if [ $do_xaudio29 -eq 1 ]; then Install_xaudio29; fi
+    if [ ${REQ[quartz2]} = 1 ]; then Install_quartz2; fi
+    if [ ${REQ[wmp11]} = 1 ]; then Install_WMP11; fi
+    if [ ${REQ[mf]} = 1 ]; then Install_mf; fi
+    if [ ${REQ[xaudio29]} = 1 ]; then Install_xaudio29; fi
 }
 
 if [ $# -gt 0 ]; then
     RunActions $@
 else
     echo "Specify one or more of these verbs to install them:"
-    echo "mf quartz2 wmp11 xaudio29"
+    echo $VERBS
     echo
 fi
