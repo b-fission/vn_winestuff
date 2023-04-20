@@ -253,7 +253,10 @@ RunActions()
     CheckEnv
     GetWindowsVer
 
-    for item in $@; do [ "${REQ[$item]}" = 1 ] && Install_${item}; done
+    if [ ${REQ[quartz2]} = 1 ]; then Install_quartz2; fi
+    if [ ${REQ[wmp11]} = 1 ]; then Install_WMP11; fi
+    if [ ${REQ[mf]} = 1 ]; then Install_mf; fi
+    if [ ${REQ[xaudio29]} = 1 ]; then Install_xaudio29; fi
 }
 
 if [ $# -gt 0 ]; then
