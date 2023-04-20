@@ -205,6 +205,16 @@ Install_quartz2()
     SetClassDll32 "B87BEB7B-8D29-423F-AE4D-6582C10175AC" $DLL #VMR7
 }
 
+Install_mciqtz32()
+{
+    Heading "mciqtz32"
+
+    DownloadFileInternal mciqtz32 mciqtz32.dll 43d131bfd6884e2d8d0317aabaf0564e36937347ab43feccfc2b1c9d38c8527b
+    cp -fv "$SCRIPT_DIR/mciqtz32/mciqtz32.dll" "$WINEPREFIX/drive_c/windows/$SYSDIR/mciqtz32.dll"
+
+    OverrideDll mciqtz32 native
+}
+
 Install_wmp11()
 {
     Heading "wmp11"
@@ -253,10 +263,11 @@ Install_lavfilters()
     RUN reg add "HKCU\\Software\\LAV\\Audio\\Formats" /f /t REG_DWORD /v wmalossless /d 1
 }
 
+
 # ============================================================================
 
 # note: VERBS is sorted to our preferred call sequence
-VERBS="quartz2 wmp11 mf lavfilters xaudio29"
+VERBS="quartz2 mciqtz32 wmp11 mf lavfilters xaudio29"
 
 RunActions()
 {
