@@ -254,7 +254,8 @@ Install_lavfilters()
 
 # ============================================================================
 
-VERBS="lavfilters mf quartz2 wmp11 xaudio29"
+# note: VERBS is sorted to our preferred call sequence
+VERBS="quartz2 wmp11 mf lavfilters xaudio29"
 
 RunActions()
 {
@@ -269,17 +270,13 @@ RunActions()
     CheckEnv
     GetWindowsVer
 
-    if [ ${REQ[quartz2]} = 1 ]; then Install_quartz2; fi
-    if [ ${REQ[wmp11]} = 1 ]; then Install_WMP11; fi
-    if [ ${REQ[mf]} = 1 ]; then Install_mf; fi
-    if [ ${REQ[xaudio29]} = 1 ]; then Install_xaudio29; fi
-    if [ ${REQ[lavfilters]} = 1 ]; then Install_lavfilters; fi
+    for item in $VERBS; do [ "${REQ[$item]}" = 1 ] && Install_${item}; done
 }
 
 if [ $# -gt 0 ]; then
     RunActions $@
 else
     echo "Specify one or more of these verbs to install them:"
-    echo $VERBS
+    echo $(echo $VERBS | tr ' ' '\n' | sort)
     echo
 fi
