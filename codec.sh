@@ -138,14 +138,14 @@ DownloadFile()
 Install_mf()
 {
     Heading "mf"
-    
+
     WORKDIR=$SCRIPT_DIR/mf
     if [ $ARCH = "win64" ]; then SYSDIR="syswow64"; else SYSDIR="system32"; fi
     if ! command -v unzip >/dev/null; then echo "unzip is not available, cannot continue."; Quit; fi
 
     OVERRIDE_DLL="colorcnv dxva2 evr mf mferror mfplat mfplay mfreadwrite msmpeg2adec msmpeg2vdec sqmapi wmadmod wmvdecod"
     REGISTER_DLL="colorcnv evr msmpeg2adec msmpeg2vdec wmadmod wmvdecod"
-    
+
     # install 32-bit components
     DownloadFile mf mf32.zip 2600aeae0f0a6aa2d4c08f847a148aed7a09218f1bfdc237b90b43990644cbbd
 
@@ -154,7 +154,7 @@ Install_mf()
 
     OverrideDll winegstreamer ""
     for DLL in $OVERRIDE_DLL; do OverrideDll $DLL native; done
-    
+
     RUN "c:/windows/$SYSDIR/reg" import "$WORKDIR/temp/mf.reg"
     RUN "c:/windows/$SYSDIR/reg" import "$WORKDIR/temp/wmf.reg"
 
@@ -166,7 +166,7 @@ Install_mf()
 
         unzip -o -q -d "$WORKDIR/temp" "$WORKDIR/mf64.zip" || Quit;
         cp -vf "$WORKDIR/temp/system32"/* "$WINEPREFIX/drive_c/windows/system32"
-        
+
         for DLL in $REGISTER_DLL; do RUN regsvr32 "c:/windows/system32/$DLL.dll"; done
 
         RUN "c:/windows/system32/reg" import "$WORKDIR/temp/mf.reg"
@@ -231,7 +231,7 @@ Install_xaudio29()
 
     cp -fv "$SCRIPT_DIR/xaudio29/xaudio2_9.dll" "$WINEPREFIX/drive_c/windows/$SYSDIR/xaudio2_9.dll"
     cp -fv "$SCRIPT_DIR/xaudio29/xaudio2_9.dll" "$WINEPREFIX/drive_c/windows/$SYSDIR/xaudio2_8.dll"
-    
+
     OverrideDll xaudio2_9 native
     OverrideDll xaudio2_8 native
 }
