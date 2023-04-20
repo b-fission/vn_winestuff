@@ -258,9 +258,9 @@ RunActions()
     CheckEnv
     GetWindowsVer
 
-    if [ $do_mf -eq 1 ]; then Install_mf; fi
     if [ $do_quartz2 -eq 1 ]; then Install_quartz2; fi
     if [ $do_wmp11 -eq 1 ]; then Install_WMP11; fi
+    if [ $do_mf -eq 1 ]; then Install_mf; fi
     if [ $do_xaudio29 -eq 1 ]; then Install_xaudio29; fi
 }
 
