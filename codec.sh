@@ -99,8 +99,7 @@ Hash_SHA256()
 }
 
 DownloadFile()
-{
-    BASEURL="https://raw.githubusercontent.com/b-fission/vn_winestuff/master/"
+{ # args: $1=output_subdir $2=output_name $3=url $4=hash
     DLFILE=$SCRIPT_DIR/$1/$2
     DLFILEWIP=${DLFILE}.download
 
@@ -112,7 +111,7 @@ DownloadFile()
 
         # download
         mkdir -p "$SCRIPT_DIR/$1"
-        wget $WGET_ARGS -P "$SCRIPT_DIR/$1" -O "$DLFILEWIP" "$BASEURL/$1/$2"
+        wget $WGET_ARGS -P "$SCRIPT_DIR/$1" -O "$DLFILEWIP" $3
 
         # delete download if wget failed
         if [[ $? -ne 0 ]]; then
@@ -120,18 +119,23 @@ DownloadFile()
             rm $DLFILEWIP 2> /dev/null
             Quit
         fi
-        echo now then
+
         mv "$DLFILEWIP" "$DLFILE"
     fi
 
     # file hash must match, otherwise quit
     if [ -f "$DLFILE" ]; then
-        Hash_SHA256 "$DLFILE" $3
+        Hash_SHA256 "$DLFILE" $4
     else
         echo "$1 is not found, cannot continue."
     fi
 }
 
+DownloadFileInternal()
+{
+    BASEURL="https://raw.githubusercontent.com/b-fission/vn_winestuff/master"
+    DownloadFile $1 $2 $BASEURL/$1/$2 $3
+}
 
 # ============================================================================
 
@@ -147,7 +151,7 @@ Install_mf()
     REGISTER_DLL="colorcnv evr msmpeg2adec msmpeg2vdec wmadmod wmvdecod"
 
     # install 32-bit components
-    DownloadFile mf mf32.zip 2600aeae0f0a6aa2d4c08f847a148aed7a09218f1bfdc237b90b43990644cbbd
+    DownloadFileInternal mf mf32.zip 2600aeae0f0a6aa2d4c08f847a148aed7a09218f1bfdc237b90b43990644cbbd
 
     unzip -o -q -d "$WORKDIR/temp" "$WORKDIR/mf32.zip" || Quit;
     cp -vf "$WORKDIR/temp/syswow64"/* "$WINEPREFIX/drive_c/windows/$SYSDIR"
@@ -162,7 +166,7 @@ Install_mf()
 
     # install 64-bit components .... not needed yet. skipping this part!
     if [ 1 -eq 0 ]; then
-        DownloadFile mf mf64.zip 000000
+        DownloadFileInternal mf mf64.zip 000000
 
         unzip -o -q -d "$WORKDIR/temp" "$WORKDIR/mf64.zip" || Quit;
         cp -vf "$WORKDIR/temp/system32"/* "$WINEPREFIX/drive_c/windows/system32"
@@ -181,7 +185,7 @@ Install_quartz2()
 {
     Heading "quartz2"
 
-    DownloadFile quartz2 quartz2.dll fa52a0d0647413deeef57c5cb632f73a97a48588c16877fc1cc66404c3c21a2b
+    DownloadFileInternal quartz2 quartz2.dll fa52a0d0647413deeef57c5cb632f73a97a48588c16877fc1cc66404c3c21a2b
 
     if [ $ARCH = "win64" ]; then SYSDIR="syswow64"; else SYSDIR="system32"; fi
 
@@ -210,7 +214,7 @@ Install_wmp11()
         *) Quit;;
     esac
 
-    DownloadFile wmp11 $wmf $validhash
+    DownloadFileInternal wmp11 $wmf $validhash
 
     SetWindowsVer winxp
     OverrideDll qasf native
@@ -225,7 +229,7 @@ Install_xaudio29()
 {
     Heading "xaudio29"
 
-    DownloadFile xaudio29 xaudio2_9.dll 667787326dd6cc94f16e332fd271d15aabe1aba2003964986c8ac56de07d5b57
+    DownloadFileInternal xaudio29 xaudio2_9.dll 667787326dd6cc94f16e332fd271d15aabe1aba2003964986c8ac56de07d5b57
 
     if [ $ARCH = "win64" ]; then SYSDIR="syswow64"; else SYSDIR="system32"; fi
 
@@ -236,9 +240,21 @@ Install_xaudio29()
     OverrideDll xaudio2_8 native
 }
 
+Install_lavfilters()
+{
+    Heading "LAVFilters"
+
+    FNAME="LAVFilters-0.77.2-Installer.exe"
+    DownloadFile lavfilters $FNAME "https://github.com/Nevcairiel/LAVFilters/releases/download/0.77.2/LAVFilters-0.77.2-Installer.exe" 3bf333bae56f9856fb7db96ce2410df1da3958ac6a9fd5ac965d33c7af6f27d7
+
+    RUN "$SCRIPT_DIR/lavfilters/$FNAME" /VERYSILENT /SUPPRESSMSGBOXES /NORESTART /SP-
+
+    RUN reg add "HKCU\\Software\\LAV\\Audio\\Formats" /f /t REG_DWORD /v wmalossless /d 1
+}
+
 # ============================================================================
 
-VERBS="mf quartz2 wmp11 xaudio29"
+VERBS="lavfilters mf quartz2 wmp11 xaudio29"
 
 RunActions()
 {
@@ -257,6 +273,7 @@ RunActions()
     if [ ${REQ[wmp11]} = 1 ]; then Install_WMP11; fi
     if [ ${REQ[mf]} = 1 ]; then Install_mf; fi
     if [ ${REQ[xaudio29]} = 1 ]; then Install_xaudio29; fi
+    if [ ${REQ[lavfilters]} = 1 ]; then Install_lavfilters; fi
 }
 
 if [ $# -gt 0 ]; then
