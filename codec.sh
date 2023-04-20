@@ -276,7 +276,8 @@ RunActions()
 
     for item in $@; do
         if [ "${REQ[$item]}" = 0 ]; then REQ[$item]=1;
-        else echo "invalid verb $item"; Quit; fi
+        elif [ "${REQ[$item]}" = 1 ]; then echo "duplicated verb: $item"; Quit;
+        else echo "invalid verb: $item"; Quit; fi
     done
 
     CheckEnv
