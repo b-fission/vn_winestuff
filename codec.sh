@@ -1,7 +1,7 @@
 #!/bin/bash
 
 echo
-echo "Helper script to install codecs for VNs on wine (v2023-04-20)"
+echo "Helper script to install codecs for VNs on wine (v2023-04-23)"
 echo
 
 SCRIPT_DIR=$( cd -- "$( dirname -- "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )
@@ -94,7 +94,14 @@ SetClassDll32()
 
 Hash_SHA256()
 {
-    HASH=$(sha256sum "$1" | sed -e "s/ .*//" | tr -d '\n')
+    if command -v sha256sum >/dev/null; then
+        HASH=$(sha256sum "$1" | sed -e "s/ .*//" | tr -d '\n')
+    elif command -v openssl >/dev/null; then
+        HASH=$(openssl sha256 "$1" | sed -e 's/SHA.* //')
+    else
+        echo "no usable sha256 utility available, cannot continue."; Quit
+    fi
+
     if [ $HASH != $2 ]; then
         echo "... hash mismatch on $1"
         echo "download hash $HASH"
@@ -109,18 +116,22 @@ DownloadFile()
     DLFILEWIP=${DLFILE}.download
 
     # download file if we don't have it yet
-    WGET_ARGS="--progress=bar"
     if [ ! -f "$DLFILE" ]; then
-        # allow resuming if an incomplete file is found
-        if [ -f "$DLFILEWIP" ]; then WGET_ARGS="$WGET_ARGS -c"; fi
-
         # download
         mkdir -p "$SCRIPT_DIR/$1"
-        wget $WGET_ARGS -P "$SCRIPT_DIR/$1" -O "$DLFILEWIP" $3
 
-        # delete download if wget failed
-        if [[ $? -ne 0 ]]; then
-            echo "wget error occurred while downloading $2"
+        if command -v wwget >/dev/null; then
+            wget --progress=bar -O "$DLFILEWIP" $3
+        elif command -v curl >/dev/null; then
+            curl -L -o "$DLFILEWIP" $3
+        else
+            echo "no downloader utility available, cannot continue."; Quit
+        fi
+
+        # delete download on failure
+        FSIZE=$(wc -c "$DLFILEWIP" | sed -e 's/ .*//')
+        if [[ $? -ne 0 || $FSIZE -eq 0 ]]; then
+            echo "error occurred while downloading $2"
             rm $DLFILEWIP 2> /dev/null
             Quit
         fi
@@ -132,7 +143,7 @@ DownloadFile()
     if [ -f "$DLFILE" ]; then
         [ "$4" != "nohash" ] && Hash_SHA256 "$DLFILE" $4
     else
-        echo "$1 is not found, cannot continue."
+        echo "$1 is not found, cannot continue."; Quit
     fi
 }
 
@@ -271,12 +282,12 @@ VERBS="quartz2 mciqtz32 wmp11 mf lavfilters xaudio29"
 
 RunActions()
 {
-    declare -A REQ
-    for item in $VERBS; do REQ[$item]=0; done
+    for item in $VERBS; do eval "do_$item=0"; done
 
     for item in $@; do
-        if [ "${REQ[$item]}" = 0 ]; then REQ[$item]=1;
-        elif [ "${REQ[$item]}" = 1 ]; then echo "duplicated verb: $item"; Quit;
+        VAL=$(eval "echo \$do_$item")
+        if [ "$VAL" = 0 ]; then eval "do_$item=1";
+        elif [ "$VAL" = 1 ]; then echo "duplicated verb: $item"; Quit;
         else echo "invalid verb: $item"; Quit; fi
     done
 
@@ -284,7 +295,7 @@ RunActions()
     GetWindowsVer
     GetSysDir
 
-    for item in $VERBS; do [ "${REQ[$item]}" = 1 ] && Install_${item}; done
+    for item in $VERBS; do [ $(eval "echo \$do_$item") = 1 ] && Install_${item}; done
 }
 
 if [ $# -gt 0 ]; then
