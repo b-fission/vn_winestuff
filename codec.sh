@@ -163,8 +163,8 @@ Install_mf()
     OverrideDll winegstreamer ""
     for DLL in $OVERRIDE_DLL; do OverrideDll $DLL native; done
 
-    RUN "c:/windows/$SYSDIR/reg" import "$WORKDIR/temp/mf.reg"
-    RUN "c:/windows/$SYSDIR/reg" import "$WORKDIR/temp/wmf.reg"
+    RUN "c:/windows/$SYSDIR/reg.exe" import "$WORKDIR/temp/mf.reg"
+    RUN "c:/windows/$SYSDIR/reg.exe" import "$WORKDIR/temp/wmf.reg"
 
     for DLL in $REGISTER_DLL; do RUN regsvr32 "c:/windows/$SYSDIR/$DLL.dll"; done
 
@@ -177,8 +177,8 @@ Install_mf()
 
         for DLL in $REGISTER_DLL; do RUN regsvr32 "c:/windows/system32/$DLL.dll"; done
 
-        RUN "c:/windows/system32/reg" import "$WORKDIR/temp/mf.reg"
-        RUN "c:/windows/system32/reg" import "$WORKDIR/temp/wmf.reg"
+        RUN "c:/windows/system32/reg.exe" import "$WORKDIR/temp/mf.reg"
+        RUN "c:/windows/system32/reg.exe" import "$WORKDIR/temp/wmf.reg"
     fi
 
     # cleanup
