@@ -120,7 +120,7 @@ DownloadFile()
         # download
         mkdir -p "$SCRIPT_DIR/$1"
 
-        if command -v wwget >/dev/null; then
+        if command -v wget >/dev/null; then
             wget --progress=bar -O "$DLFILEWIP" $3
         elif command -v curl >/dev/null; then
             curl -L -o "$DLFILEWIP" $3
