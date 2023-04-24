@@ -244,6 +244,8 @@ Install_wmp11()
     OverrideDll qasf native
     OverrideDll winegstreamer ""
 
+    rm -vf "$WINEPREFIX/drive_c/windows/$SYSDIR"/{qasf,wmasf,wmvcore}.dll
+
     RUN "$SCRIPT_DIR/wmp11/$wmf" /q
 
     SetWindowsVer $PREV_OSVER
