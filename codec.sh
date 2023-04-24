@@ -129,8 +129,9 @@ DownloadFile()
         fi
 
         # delete download on failure
+        RET=$?
         FSIZE=$(wc -c "$DLFILEWIP" | sed -e 's/ .*//')
-        if [[ $? -ne 0 || $FSIZE -eq 0 ]]; then
+        if [[ $RET -ne 0 || $FSIZE -eq 0 ]]; then
             echo "error occurred while downloading $2"
             rm $DLFILEWIP 2> /dev/null
             Quit
