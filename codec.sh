@@ -46,20 +46,20 @@ CheckEnv()
     fi
 
     # check for valid WINEARCH  (also end current wine session)
-    WINEDEBUG="-all" WINEARCH=$ARCH $WINE wineboot -e || Quit
+    WINEDEBUG="-all" WINEARCH=$ARCH "$WINE" wineboot -e || Quit
 }
 
 RUN()
 {
     echo "[run] $WINE $@"
-    WINEDEBUG="-all" $WINE $@
+    WINEDEBUG="-all" "$WINE" $@
 
     if [ $? -ne 0 ]; then echo "some kind of error occurred."; Quit; fi
 }
 
 GetWindowsVer()
 {
-    OSVER=$(WINEDEBUG="-all" $WINE winecfg -v | tr -d '\r')
+    OSVER=$(WINEDEBUG="-all" "$WINE" winecfg -v | tr -d '\r')
     #echo "OS Ver is $OSVER"
 }
 
