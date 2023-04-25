@@ -1,7 +1,7 @@
 #!/bin/bash
 
 echo
-echo "Helper script to install codecs for VNs on wine (v2023-04-23)"
+echo "Helper script to install codecs for VNs on wine (v2023-04-25)"
 echo
 
 SCRIPT_DIR=$( cd -- "$( dirname -- "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )
@@ -197,6 +197,34 @@ Install_mf()
     rm -fr "$WORKDIR/temp"
 }
 
+Install_quartz_dx()
+{
+    Heading "quartz_dx"
+
+    DownloadFileInternal quartz_dx devenum.dll ab49f2ebb9f99b640c14a4a1d830b35685aa758c7b1f5c62d77fdb6e09081387
+    DownloadFileInternal quartz_dx quartz.dll a378764866d8dd280e63dda4e62c5b10626cf46a230768fb24c3c3d5f7263b87
+
+    cp -fv "$SCRIPT_DIR/quartz_dx/"{quartz,devenum}.dll "$WINEPREFIX/drive_c/windows/$SYSDIR"
+
+    OverrideDll devenum native,builtin
+    OverrideDll quartz native,builtin
+
+    RUN regsvr32 c:/windows/$SYSDIR/devenum.dll
+    RUN regsvr32 c:/windows/$SYSDIR/quartz.dll
+
+    # also install dgVoodoo2 for compatibility
+    DownloadFileInternal dgvoodoo2 dgVoodoo2_8_1.zip 15f95a5c163f74105a03479fb2e868c04c432680e0892bf559198a93a7cd1c25
+
+    unzip -o -q -d "$SCRIPT_DIR/dgvoodoo2/temp" "$SCRIPT_DIR/dgvoodoo2/dgVoodoo2_8_1.zip" "MS/x86/DDraw.dll"
+    cp -fv "$SCRIPT_DIR/dgvoodoo2/temp/MS/x86/DDraw.dll" "$WINEPREFIX/drive_c/windows/$SYSDIR/ddraw.dll"
+    cp -fv "$SCRIPT_DIR/dgvoodoo2/dgVoodoo.conf" "$WINEPREFIX/drive_c/windows/$SYSDIR"
+
+    OverrideDll ddraw native
+
+    # cleanup
+    rm -fr "$SCRIPT_DIR/dgvoodoo2/temp"
+}
+
 Install_quartz2()
 {
     Heading "quartz2"
@@ -281,7 +309,7 @@ Install_lavfilters()
 # ============================================================================
 
 # note: VERBS is sorted to our preferred call sequence
-VERBS="quartz2 mciqtz32 wmp11 mf lavfilters xaudio29"
+VERBS="quartz2 mciqtz32 wmp11 mf lavfilters quartz_dx xaudio29"
 
 RunActions()
 {
