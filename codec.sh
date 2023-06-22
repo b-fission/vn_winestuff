@@ -1,7 +1,7 @@
 #!/bin/bash
 
 echo
-echo "Helper script to install codecs for VNs on wine (v2023-04-25)"
+echo "Helper script to install codecs for VNs on wine (v2023-06-22)"
 echo
 
 SCRIPT_DIR=$( cd -- "$( dirname -- "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )
@@ -302,7 +302,11 @@ Install_lavfilters()
 
     RUN "$SCRIPT_DIR/lavfilters/$FNAME" /VERYSILENT /SUPPRESSMSGBOXES /NORESTART /SP-
 
+    RUN reg add "HKCU\\Software\\LAV\\Audio\\Formats" /f /t REG_DWORD /v wma /d 1
+    RUN reg add "HKCU\\Software\\LAV\\Audio\\Formats" /f /t REG_DWORD /v wmapro /d 1
     RUN reg add "HKCU\\Software\\LAV\\Audio\\Formats" /f /t REG_DWORD /v wmalossless /d 1
+
+    RUN reg add "HKCU\\Software\\LAV\\Video\\Output" /f /t REG_DWORD /v yuy2 /d 0
 }
 
 
