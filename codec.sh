@@ -1,7 +1,7 @@
 #!/bin/bash
 
 echo
-echo "Helper script to install codecs for VNs on wine (v2023-06-22)"
+echo "Helper script to install codecs for VNs on wine (v2023-08-14)"
 echo
 
 SCRIPT_DIR=$( cd -- "$( dirname -- "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )
@@ -154,6 +154,17 @@ DownloadFileInternal()
     DownloadFile $1 $2 $BASEURL/$1/$2 $3
 }
 
+
+# ============================================================================
+
+Disable_winegstreamer()
+{
+    OverrideDll winegstreamer ""
+    OverrideDll ir50_32 ""
+    OverrideDll wmvcore ""
+}
+
+
 # ============================================================================
 
 Install_mf()
@@ -172,7 +183,7 @@ Install_mf()
     unzip -o -q -d "$WORKDIR/temp" "$WORKDIR/mf32.zip" || Quit;
     cp -vf "$WORKDIR/temp/syswow64"/* "$WINEPREFIX/drive_c/windows/$SYSDIR"
 
-    OverrideDll winegstreamer ""
+    Disable_winegstreamer
     for DLL in $OVERRIDE_DLL; do OverrideDll $DLL native; done
 
     RUN "c:/windows/$SYSDIR/reg.exe" import "$WORKDIR/temp/mf.reg"
@@ -234,7 +245,7 @@ Install_quartz2()
     cp -fv "$SCRIPT_DIR/quartz2/quartz2.dll" "$WINEPREFIX/drive_c/windows/$SYSDIR/quartz2.dll"
     RUN c:/windows/$SYSDIR/regsvr32.exe quartz2.dll
 
-    OverrideDll winegstreamer ""
+    Disable_winegstreamer
 
     # use wine's quartz for these DirectShow filters
     DLL="c:\\windows\\$SYSDIR\\quartz.dll"
@@ -269,8 +280,9 @@ Install_wmp11()
     DownloadFileInternal wmp11 $wmf $validhash
 
     SetWindowsVer winxp
+    Disable_winegstreamer
     OverrideDll qasf native
-    OverrideDll winegstreamer ""
+    OverrideDll wmvcore native
 
     rm -vf "$WINEPREFIX/drive_c/windows/$SYSDIR"/{qasf,wmasf,wmvcore}.dll
 
