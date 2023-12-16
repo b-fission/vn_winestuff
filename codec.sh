@@ -1,7 +1,7 @@
 #!/bin/bash
 
 echo
-echo "Helper script to install codecs for VNs on wine (v2023-08-14)"
+echo "Helper script to install codecs for VNs on wine (v2023-12-16)"
 echo
 
 SCRIPT_DIR=$( cd -- "$( dirname -- "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )
@@ -53,6 +53,14 @@ RUN()
 {
     echo "[run] $WINE $@"
     WINEDEBUG="-all" "$WINE" $@
+
+    if [ $? -ne 0 ]; then echo "some kind of error occurred."; Quit; fi
+}
+
+RUN64()
+{
+    echo "[run64] ${WINE}64 $@"
+    WINEDEBUG="-all" "${WINE}64" $@
 
     if [ $? -ne 0 ]; then echo "some kind of error occurred."; Quit; fi
 }
@@ -191,17 +199,17 @@ Install_mf()
 
     for DLL in $REGISTER_DLL; do RUN c:/windows/$SYSDIR/regsvr32.exe "c:/windows/$SYSDIR/$DLL.dll"; done
 
-    # install 64-bit components .... not needed yet. skipping this part!
-    if [ 1 -eq 0 ]; then
-        DownloadFileInternal mf mf64.zip 000000
+    # install 64-bit components
+    if [ $ARCH = "win64" ]; then
+        DownloadFileInternal mf mf64.zip 8a316d8c2c32a7e56ed540026e79db76879cc61794b3331301390013339e8ad7
 
         unzip -o -q -d "$WORKDIR/temp" "$WORKDIR/mf64.zip" || Quit;
         cp -vf "$WORKDIR/temp/system32"/* "$WINEPREFIX/drive_c/windows/system32"
 
-        for DLL in $REGISTER_DLL; do RUN c:/windows/system32/regsvr32.exe "c:/windows/system32/$DLL.dll"; done
+        RUN64 "c:/windows/system32/reg.exe" import "$WORKDIR/temp/mf.reg"
+        RUN64 "c:/windows/system32/reg.exe" import "$WORKDIR/temp/wmf.reg"
 
-        RUN "c:/windows/system32/reg.exe" import "$WORKDIR/temp/mf.reg"
-        RUN "c:/windows/system32/reg.exe" import "$WORKDIR/temp/wmf.reg"
+        for DLL in $REGISTER_DLL; do RUN64 "c:/windows/system32/regsvr32.exe" "c:/windows/system32/$DLL.dll"; done
     fi
 
     # cleanup
