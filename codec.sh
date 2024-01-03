@@ -220,14 +220,18 @@ Install_quartz_dx()
 {
     Heading "quartz_dx"
 
+    DownloadFileInternal quartz_dx amstream.dll 0e87db588c7740c7c8e9d19af9b4843e497759300888445388ff915c5ccd145c
     DownloadFileInternal quartz_dx devenum.dll ab49f2ebb9f99b640c14a4a1d830b35685aa758c7b1f5c62d77fdb6e09081387
     DownloadFileInternal quartz_dx quartz.dll a378764866d8dd280e63dda4e62c5b10626cf46a230768fb24c3c3d5f7263b87
 
-    cp -fv "$SCRIPT_DIR/quartz_dx/"{quartz,devenum}.dll "$WINEPREFIX/drive_c/windows/$SYSDIR"
+    cp -fv "$SCRIPT_DIR/quartz_dx/"{quartz,devenum,amstream}.dll "$WINEPREFIX/drive_c/windows/$SYSDIR"
 
+    Disable_winegstreamer
+    OverrideDll amstream native,builtin
     OverrideDll devenum native,builtin
     OverrideDll quartz native,builtin
 
+    RUN c:/windows/$SYSDIR/regsvr32.exe c:/windows/$SYSDIR/amstream.dll
     RUN c:/windows/$SYSDIR/regsvr32.exe c:/windows/$SYSDIR/devenum.dll
     RUN c:/windows/$SYSDIR/regsvr32.exe c:/windows/$SYSDIR/quartz.dll
 
