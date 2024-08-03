@@ -1,7 +1,7 @@
 #!/bin/bash
 
 echo
-echo "Helper script to install codecs for VNs on wine (v2024-01-03)"
+echo "Helper script to install codecs for VNs on wine (v2024-08-02)"
 echo
 
 SCRIPT_DIR=$( cd -- "$( dirname -- "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )
@@ -197,7 +197,7 @@ Install_mf()
     RUN "c:/windows/$SYSDIR/reg.exe" import "$WORKDIR/temp/mf.reg"
     RUN "c:/windows/$SYSDIR/reg.exe" import "$WORKDIR/temp/wmf.reg"
 
-    for DLL in $REGISTER_DLL; do RUN c:/windows/$SYSDIR/regsvr32.exe "c:/windows/$SYSDIR/$DLL.dll"; done
+    for DLL in $REGISTER_DLL; do RUN c:/windows/$SYSDIR/regsvr32.exe /s "c:/windows/$SYSDIR/$DLL.dll"; done
 
     # install 64-bit components
     if [ $ARCH = "win64" ]; then
@@ -209,7 +209,7 @@ Install_mf()
         RUN64 "c:/windows/system32/reg.exe" import "$WORKDIR/temp/mf.reg"
         RUN64 "c:/windows/system32/reg.exe" import "$WORKDIR/temp/wmf.reg"
 
-        for DLL in $REGISTER_DLL; do RUN64 "c:/windows/system32/regsvr32.exe" "c:/windows/system32/$DLL.dll"; done
+        for DLL in $REGISTER_DLL; do RUN64 c:/windows/system32/regsvr32.exe /s "c:/windows/system32/$DLL.dll"; done
     fi
 
     # cleanup
@@ -231,9 +231,9 @@ Install_quartz_dx()
     OverrideDll devenum native,builtin
     OverrideDll quartz native,builtin
 
-    RUN c:/windows/$SYSDIR/regsvr32.exe c:/windows/$SYSDIR/amstream.dll
-    RUN c:/windows/$SYSDIR/regsvr32.exe c:/windows/$SYSDIR/devenum.dll
-    RUN c:/windows/$SYSDIR/regsvr32.exe c:/windows/$SYSDIR/quartz.dll
+    RUN c:/windows/$SYSDIR/regsvr32.exe /s c:/windows/$SYSDIR/amstream.dll
+    RUN c:/windows/$SYSDIR/regsvr32.exe /s c:/windows/$SYSDIR/devenum.dll
+    RUN c:/windows/$SYSDIR/regsvr32.exe /s c:/windows/$SYSDIR/quartz.dll
 
     # also install dgVoodoo2 for compatibility
     DownloadFileInternal dgvoodoo2 dgVoodoo2_8_1.zip 15f95a5c163f74105a03479fb2e868c04c432680e0892bf559198a93a7cd1c25
@@ -255,7 +255,7 @@ Install_quartz2()
     DownloadFileInternal quartz2 quartz2.dll fa52a0d0647413deeef57c5cb632f73a97a48588c16877fc1cc66404c3c21a2b
 
     cp -fv "$SCRIPT_DIR/quartz2/quartz2.dll" "$WINEPREFIX/drive_c/windows/$SYSDIR/quartz2.dll"
-    RUN c:/windows/$SYSDIR/regsvr32.exe quartz2.dll
+    RUN c:/windows/$SYSDIR/regsvr32.exe /s quartz2.dll
 
     Disable_winegstreamer
 
