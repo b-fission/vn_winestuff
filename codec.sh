@@ -275,6 +275,7 @@ Install_mciqtz32()
     DownloadFileInternal mciqtz32 mciqtz32.dll 43d131bfd6884e2d8d0317aabaf0564e36937347ab43feccfc2b1c9d38c8527b
     cp -fv "$SCRIPT_DIR/mciqtz32/mciqtz32.dll" "$WINEPREFIX/drive_c/windows/$SYSDIR/mciqtz32.dll"
 
+    Disable_winegstreamer
     OverrideDll mciqtz32 native
 }
 
