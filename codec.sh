@@ -1,7 +1,7 @@
 #!/bin/bash
 
 echo
-echo "Helper script to install codecs for VNs on wine (v2024-08-02)"
+echo "Helper script to install codecs for VNs on wine (v2024-09-15)"
 echo
 
 SCRIPT_DIR=$( cd -- "$( dirname -- "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )
