@@ -1,7 +1,7 @@
 #!/bin/bash
 
 echo
-echo "Helper script to install codecs for VNs on wine (v2025-02-17)"
+echo "Helper script to install codecs for VNs on wine (v2025-02-18)"
 echo
 
 SCRIPT_DIR=$( cd -- "$( dirname -- "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )
@@ -67,7 +67,8 @@ RUN64()
 
 GetWindowsVer()
 {
-    OSVER=$(WINEDEBUG="-all" "$WINE" winecfg -v | tr -d '\r')
+    #OSVER=$(WINEDEBUG="-all" "$WINE" winecfg -v | tr -d '\r')
+    OSVER=$(WINEDEBUG="-all" "$WINE" winecfg -v 2>&1 | grep win | tr -d '\r')
     #echo "OS Ver is $OSVER"
 }
 
