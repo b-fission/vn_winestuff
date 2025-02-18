@@ -1,7 +1,7 @@
 #!/bin/bash
 
 echo
-echo "Helper script to install codecs for VNs on wine (v2024-09-15)"
+echo "Helper script to install codecs for VNs on wine (v2025-02-17)"
 echo
 
 SCRIPT_DIR=$( cd -- "$( dirname -- "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )
@@ -172,6 +172,24 @@ Disable_winegstreamer()
     OverrideDll wmvcore ""
 }
 
+Copy_WineVkd3dFiles()
+{
+    WINE_BASEPATH=$(cd -- "$(dirname "`command -v "$WINE"`")/.." &> /dev/null && pwd)
+
+    if [ -f "$WINE_BASEPATH/lib/vkd3d/libvkd3d-1.dll" ]; then
+        if [ ! -f "$WINEPREFIX/drive_c/windows/$SYSDIR/libvkd3d-1.dll" ]; then
+            echo "going to copy libvkd3d dlls into prefix"
+
+            # copy 32-bit files
+            cp -v "$WINE_BASEPATH/lib/vkd3d"/*.dll "$WINEPREFIX/drive_c/windows/$SYSDIR"
+
+            # copy 64-bit files
+            if [ $ARCH = "win64" ]; then
+                cp -v "$WINE_BASEPATH/lib64/vkd3d"/*.dll "$WINEPREFIX/drive_c/windows/system32"
+            fi
+        fi
+    fi
+}
 
 # ============================================================================
 
@@ -324,6 +342,8 @@ Install_lavfilters()
     VER="0.77.2"
     FNAME="LAVFilters-$VER-Installer.exe"
     DownloadFile lavfilters $FNAME "https://github.com/Nevcairiel/LAVFilters/releases/download/$VER/$FNAME" 3bf333bae56f9856fb7db96ce2410df1da3958ac6a9fd5ac965d33c7af6f27d7
+
+    Copy_WineVkd3dFiles
 
     RUN "$SCRIPT_DIR/lavfilters/$FNAME" /VERYSILENT /SUPPRESSMSGBOXES /NORESTART /SP-
 
