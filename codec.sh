@@ -271,12 +271,19 @@ Install_quartz2()
 {
     Heading "quartz2"
 
+    DownloadFileInternal quartz2 amstream.dll 26012b03ad7c0802a2f26bf89c6510a78f6f4ae44d5e5eed164e22db7db334f0
+    DownloadFileInternal quartz2 devenum.dll ed55a2ab8ab2675f277bedae94d30e0fb4e0174e92014c0b95d51e9a6379c301
     DownloadFileInternal quartz2 quartz2.dll fa52a0d0647413deeef57c5cb632f73a97a48588c16877fc1cc66404c3c21a2b
 
-    cp -fv "$SCRIPT_DIR/quartz2/quartz2.dll" "$WINEPREFIX/drive_c/windows/$SYSDIR/quartz2.dll"
-    RUN c:/windows/$SYSDIR/regsvr32.exe /s quartz2.dll
-
     Disable_winegstreamer
+    OverrideDll amstream native,builtin
+    OverrideDll devenum native,builtin
+    OverrideDll quartz native,builtin
+
+    cp -fv "$SCRIPT_DIR/quartz2/"{quartz2,amstream,devenum}.dll "$WINEPREFIX/drive_c/windows/$SYSDIR"
+    #RUN c:/windows/$SYSDIR/regsvr32.exe /s amstream.dll
+    RUN c:/windows/$SYSDIR/regsvr32.exe /s devenum.dll
+    RUN c:/windows/$SYSDIR/regsvr32.exe /s quartz2.dll
 
     # use wine's quartz for these DirectShow filters
     DLL="c:\\windows\\$SYSDIR\\quartz.dll"
