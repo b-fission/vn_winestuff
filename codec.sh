@@ -1,7 +1,7 @@
 #!/bin/bash
 
 echo
-echo "Helper script to install codecs for VNs on wine (v2025-04-09)"
+echo "Helper script to install codecs for VNs on wine (v2025-06-28)"
 echo
 
 SCRIPT_DIR=$( cd -- "$( dirname -- "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )
@@ -59,8 +59,13 @@ RUN()
 
 RUN64()
 {
-    echo "[run64] ${WINE}64 $@"
-    WINEDEBUG="-all" "${WINE}64" $@
+    if command -v "${WINE}64" >/dev/null; then
+        WINECMD="${WINE}64"
+    else
+        WINECMD="$WINE"
+    fi
+    echo "[run64] ${WINECMD} $@"
+    WINEDEBUG="-all" "${WINECMD}" $@
 
     if [ $? -ne 0 ]; then echo "some kind of error occurred."; Quit; fi
 }
