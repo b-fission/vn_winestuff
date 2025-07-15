@@ -1,7 +1,7 @@
 #!/bin/bash
 
 echo
-echo "Helper script to install codecs for VNs on wine (v2025-06-29)"
+echo "Helper script to install codecs for VNs on wine (v2025-07-14)"
 echo
 
 SCRIPT_DIR=$( cd -- "$( dirname -- "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )
@@ -206,11 +206,11 @@ Install_mf()
     WORKDIR=$SCRIPT_DIR/mf
     if ! command -v unzip >/dev/null; then echo "unzip is not available, cannot continue."; Quit; fi
 
-    OVERRIDE_DLL="colorcnv dxva2 evr mf mferror mfplat mfplay mfreadwrite msmpeg2adec msmpeg2vdec sqmapi wmadmod wmvdecod"
-    REGISTER_DLL="colorcnv evr msmpeg2adec msmpeg2vdec wmadmod wmvdecod"
+    OVERRIDE_DLL="colorcnv dxva2 evr mf mferror mfplat mfplay mfreadwrite mp4sdecd msmpeg2adec msmpeg2vdec sqmapi wmadmod wmvdecod"
+    REGISTER_DLL="colorcnv evr mp4sdecd msmpeg2adec msmpeg2vdec wmadmod wmvdecod"
 
     # install 32-bit components
-    DownloadFileInternal mf mf32.zip 2600aeae0f0a6aa2d4c08f847a148aed7a09218f1bfdc237b90b43990644cbbd
+    DownloadFileInternal mf mf32.zip 7d8e909178f2c56f65e2f9668ef939e644403a844fc75ce7a3f920c8d489bda0
 
     unzip -o -q -d "$WORKDIR/temp" "$WORKDIR/mf32.zip" || Quit;
     cp -vf "$WORKDIR/temp/syswow64"/* "$WINEPREFIX/drive_c/windows/$SYSDIR"
@@ -225,7 +225,7 @@ Install_mf()
 
     # install 64-bit components
     if [ $ARCH = "win64" ]; then
-        DownloadFileInternal mf mf64.zip 8a316d8c2c32a7e56ed540026e79db76879cc61794b3331301390013339e8ad7
+        DownloadFileInternal mf mf64.zip 528cea0283db362a35555cd616a621f1cfa2e39be3be65f38487ebf22cf4da11
 
         unzip -o -q -d "$WORKDIR/temp" "$WORKDIR/mf64.zip" || Quit;
         cp -vf "$WORKDIR/temp/system32"/* "$WINEPREFIX/drive_c/windows/system32"
