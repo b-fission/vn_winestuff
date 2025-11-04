@@ -331,7 +331,7 @@ Install_wmp11()
     OverrideDll wmadmod native
     OverrideDll wmasf native
 
-    rm -vf "$WINEPREFIX/drive_c/windows/$SYSDIR"/{qasf,wmasf,wmvcore}.dll
+    rm -vf "$WINEPREFIX/drive_c/windows/$SYSDIR"/{qasf,wmasf,wmvcore,wmadmod}.dll
 
     RUN "$SCRIPT_DIR/wmp11/$wmf" /q
 
