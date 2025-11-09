@@ -1,7 +1,7 @@
 #!/bin/bash
 
 echo
-echo "Helper script to install codecs for VNs on wine (v2025-11-03)"
+echo "Helper script to install codecs for VNs on wine (v2025-11-08)"
 echo
 
 SCRIPT_DIR=$( cd -- "$( dirname -- "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )
@@ -304,10 +304,14 @@ Install_mciqtz32()
     Heading "mciqtz32"
 
     DownloadFileInternal mciqtz32 mciqtz32.dll 43d131bfd6884e2d8d0317aabaf0564e36937347ab43feccfc2b1c9d38c8527b
+    DownloadFileInternal mciqtz32 mciavi32.dll 1671e341a26430ae056271dd74e2ddb0646f348870ce23c9c79e9abe98ef7d14
+
     cp -fv "$SCRIPT_DIR/mciqtz32/mciqtz32.dll" "$WINEPREFIX/drive_c/windows/$SYSDIR/mciqtz32.dll"
+    cp -fv "$SCRIPT_DIR/mciqtz32/mciavi32.dll" "$WINEPREFIX/drive_c/windows/$SYSDIR/mciavi32.dll"
 
     Disable_winegstreamer
     OverrideDll mciqtz32 native
+    OverrideDll mciavi32 native
 }
 
 Install_wmp11()
